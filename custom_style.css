@@ -1,0 +1,63 @@
+/* Gradiente vertical na sidebar */
+section[data-testid="stSidebar"] > div:first-child {
+    background: linear-gradient(to bottom, #122A29, #69BFBE);
+    min-height: 100vh;
+}
+
+/* Texto branco nos elementos da sidebar (geral) */
+section[data-testid="stSidebar"] {
+    color: white;
+}
+
+/* Estilo para os exemplos em preto */
+.sidebar-example {
+    color: black !important;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+/* Container principal - espaço para o chat */
+.stApp > div:first-child > div:first-child > div:first-child {
+    padding-bottom: 120px !important;
+}
+
+/* Fixar o chat_input */
+div[data-testid="stChatInput"] {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: calc(300px + var(--sidebar-width, 336px)) !important;
+    right: 20px !important;
+    z-index: 999 !important;
+    background-color: white !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    margin: 0 !important;
+}
+
+/* Responsividade - sidebar recolhida */
+@media screen and (max-width: 1200px) {
+    div[data-testid="stChatInput"] {
+        left: 20px !important;
+    }
+}
+
+/* Estilo para o botão Limpar Conversa */
+section[data-testid="stSidebar"] button {
+    background-color: #f2295b !important;
+    border: none !important;
+    color: white !important;
+    width: 100%;
+    margin: 1.5rem auto !important;
+    display: block;
+    transition: background-color 0.3s ease;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+}
+
+/* Efeito hover para o botão */
+section[data-testid="stSidebar"] button:hover {
+    background-color: #d11c4a !important;
+}
