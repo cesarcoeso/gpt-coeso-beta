@@ -232,11 +232,12 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
     with st.chat_message("user"):
         st.markdown(prompt)
     
-    # Rastreia o envio de mensagem
+    # Rastreia o envio de mensagem (versão corrigida)
+    safe_prompt = prompt.replace('"', "'")[:100]  # Prepara o texto para JS
     st.markdown(f"""
     <script>
     if (typeof fbq !== 'undefined') {{
-        fbq('track', 'SendMessage', {{content: "{prompt[:100].replace('"', '\\"')}"}});
+        fbq('track', 'SendMessage', {{content: "{safe_prompt}"}});
     }}
     </script>
     """, unsafe_allow_html=True)
