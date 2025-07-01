@@ -9,6 +9,38 @@ import os
 # Configuração para evitar problemas com protobuf
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
+# === META PIXEL ===
+META_PIXEL_ID = "1191282802604696"  # Seu Pixel ID
+
+meta_pixel_code = f"""
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{{if(f.fbq)return;n=f.fbq=function(){{n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)}};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '{META_PIXEL_ID}');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id={META_PIXEL_ID}&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+<!-- Evento de Início de Conversa -->
+<script>
+function trackChatStart() {{
+    fbq('track', 'InitiateChat');
+}}
+</script>
+"""
+
+st.markdown(meta_pixel_code, unsafe_allow_html=True)
+
 # === CONFIGURAÇÃO DA PÁGINA ===
 st.set_page_config(
     page_title="Assistente BETA Excel - Coeso Cursos",
@@ -46,17 +78,12 @@ st.markdown("""
 </style>
 
 <script>
-// Garante que o chat input fique visível
-function ensureChatInputVisible() {
-    const chatInput = document.querySelector('[data-testid="stChatInput"]');
-    if (chatInput) {
-        chatInput.style.position = 'fixed';
-        chatInput.style.bottom = '20px';
-        chatInput.style.zIndex = '9999';
+// Dispara evento quando o chat é carregado
+window.addEventListener('load', function() {
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent');
     }
-}
-// Verifica a cada segundo
-setInterval(ensureChatInputVisible, 1000);
+});
 </script>
 """, unsafe_allow_html=True)
 
@@ -72,6 +99,14 @@ st.markdown("""
 # === INTERFACE PRINCIPAL ===
 if 'messages' not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    # Rastreia quando uma nova conversa é iniciada
+    st.markdown("""
+    <script>
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'StartChat');
+    }
+    </script>
+    """, unsafe_allow_html=True)
 
 # Barra lateral com instruções
 with st.sidebar:
@@ -130,6 +165,14 @@ with st.sidebar:
     
     if st.button("🪟 Limpar Conversa"):
         st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        # Rastreia quando a conversa é limpa
+        st.markdown("""
+        <script>
+        if (typeof fbq !== 'undefined') {
+            fbq('track', 'ResetChat');
+        }
+        </script>
+        """, unsafe_allow_html=True)
         st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
@@ -189,6 +232,15 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
     with st.chat_message("user"):
         st.markdown(prompt)
     
+    # Rastreia o envio de mensagem
+    st.markdown(f"""
+    <script>
+    if (typeof fbq !== 'undefined') {{
+        fbq('track', 'SendMessage', {{content: "{prompt[:100].replace('"', '\\"')}"}});
+    }}
+    </script>
+    """, unsafe_allow_html=True)
+    
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.session_state.messages = limit_history(st.session_state.messages)
 
@@ -213,6 +265,15 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
                         msg_box.markdown(full_resp + "▌", unsafe_allow_html=True)
                         time.sleep(0.15)
                 msg_box.markdown(full_resp, unsafe_allow_html=True)
+            
+            # Rastreia resposta recebida
+            st.markdown("""
+            <script>
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'ReceiveResponse');
+            }
+            </script>
+            """, unsafe_allow_html=True)
             
             st.session_state.messages.append({"role": "assistant", "content": formatted})
         except Exception as e:
