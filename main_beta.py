@@ -41,6 +41,13 @@ function trackChatStart() {{
 
 st.markdown(meta_pixel_code, unsafe_allow_html=True)
 
+# === VERIFICAÇÃO NO CONSOLE ===
+st.markdown(f"""
+<script>
+console.log('Meta Pixel carregado, ID: {META_PIXEL_ID}');
+</script>
+""", unsafe_allow_html=True)
+
 # === CONFIGURAÇÃO DA PÁGINA ===
 st.set_page_config(
     page_title="Assistente BETA Excel - Coeso Cursos",
@@ -82,19 +89,29 @@ st.markdown("""
 window.addEventListener('load', function() {
     if (typeof fbq !== 'undefined') {
         fbq('track', 'ViewContent');
+        console.log('Evento ViewContent disparado');
     }
 });
 </script>
 """, unsafe_allow_html=True)
 
-# Garante espaço para o chat_input
+# === RASTREAMENTO DE CÓPIA DE FÓRMULAS ===
 st.markdown("""
-<style>
-    .main .block-container {
-        padding-bottom: 120px;
+<script>
+// Rastreia quando o usuário copia texto da área de respostas
+document.addEventListener('copy', function(e) {
+    const selection = window.getSelection().toString();
+    if (selection && typeof fbq !== 'undefined') {
+        // Verifica se o texto copiado parece uma fórmula (contém '=' ou 'SE(' etc)
+        if (selection.includes('=') || selection.includes('SE(') || selection.includes('PROCV')) {
+            fbq('track', 'CopyFormula', {content: selection.substring(0, 100)});
+            console.log('Fórmula copiada:', selection.substring(0, 100) + '...');
+        }
     }
-</style>
+});
+</script>
 """, unsafe_allow_html=True)
+
 
 # === INTERFACE PRINCIPAL ===
 if 'messages' not in st.session_state:
@@ -233,11 +250,12 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
         st.markdown(prompt)
     
     # Rastreia o envio de mensagem (versão corrigida)
-    safe_prompt = prompt.replace('"', "'")[:100]  # Prepara o texto para JS
+    safe_prompt = prompt.replace('"', "'").replace('\n', ' ')[:100]  # Prepara o texto para JS
     st.markdown(f"""
     <script>
     if (typeof fbq !== 'undefined') {{
         fbq('track', 'SendMessage', {{content: "{safe_prompt}"}});
+        console.log('Mensagem enviada:', "{safe_prompt}");
     }}
     </script>
     """, unsafe_allow_html=True)
@@ -272,6 +290,7 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
             <script>
             if (typeof fbq !== 'undefined') {
                 fbq('track', 'ReceiveResponse');
+                console.log('Resposta recebida');
             }
             </script>
             """, unsafe_allow_html=True)
