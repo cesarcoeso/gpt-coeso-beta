@@ -50,7 +50,7 @@ console.log('Meta Pixel carregado, ID: {META_PIXEL_ID}');
 
 # === CONFIGURAÇÃO DA PÁGINA ===
 st.set_page_config(
-    page_title="Assistente BETA Excel - Coeso Cursos",
+    page_title="Assistente de Excel - Coeso Cursos",
     page_icon="https://coesocursos.com.br/wp-content/uploads/2025/05/cropped-favicon.png",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -60,15 +60,12 @@ st.set_page_config(
 with open("custom_style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    # Adicione isto logo após carregar o CSS
 st.markdown("""
 <style>
-    /* Garante que o container principal tenha espaço para o chat */
     .main .block-container {
         padding-bottom: 150px !important;
     }
     
-    /* Ajuste extra para o chat input */
     [data-testid="stChatInput"] {
         position: fixed !important;
         bottom: 20px !important;
@@ -85,7 +82,6 @@ st.markdown("""
 </style>
 
 <script>
-// Dispara evento quando o chat é carregado
 window.addEventListener('load', function() {
     if (typeof fbq !== 'undefined') {
         fbq('track', 'ViewContent');
@@ -98,11 +94,9 @@ window.addEventListener('load', function() {
 # === RASTREAMENTO DE CÓPIA DE FÓRMULAS ===
 st.markdown("""
 <script>
-// Rastreia quando o usuário copia texto da área de respostas
 document.addEventListener('copy', function(e) {
     const selection = window.getSelection().toString();
     if (selection && typeof fbq !== 'undefined') {
-        // Verifica se o texto copiado parece uma fórmula (contém '=' ou 'SE(' etc)
         if (selection.includes('=') || selection.includes('SE(') || selection.includes('PROCV')) {
             fbq('track', 'CopyFormula', {content: selection.substring(0, 100)});
             console.log('Fórmula copiada:', selection.substring(0, 100) + '...');
@@ -112,11 +106,9 @@ document.addEventListener('copy', function(e) {
 </script>
 """, unsafe_allow_html=True)
 
-
 # === INTERFACE PRINCIPAL ===
 if 'messages' not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    # Rastreia quando uma nova conversa é iniciada
     st.markdown("""
     <script>
     if (typeof fbq !== 'undefined') {
@@ -127,7 +119,6 @@ if 'messages' not in st.session_state:
 
 # Barra lateral com instruções
 with st.sidebar:
-    # Logo com link clicável
     st.markdown(
         """
         <div style="text-align: center; margin-bottom: 1.5rem;">
@@ -139,7 +130,7 @@ with st.sidebar:
         """,
         unsafe_allow_html=True
     )
-        # Instruções de uso
+
     st.markdown("""
     ### ℹ️ Como usar este assistente de Excel:
     - Pergunte sobre fórmulas, funções e técnicas avançadas de Excel
@@ -160,8 +151,6 @@ with st.sidebar:
     - Prefira funções modernas como XPROC em vez de PROCV
     """, unsafe_allow_html=True)
 
-
-    # Botão de limpar conversa
     st.markdown("""
     <style>
         div.stButton > button {
@@ -184,7 +173,6 @@ with st.sidebar:
     
     if st.button("🪟 Limpar Conversa"):
         st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-        # Rastreia quando a conversa é limpa
         st.markdown("""
         <script>
         if (typeof fbq !== 'undefined') {
@@ -197,8 +185,8 @@ with st.sidebar:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Área principal do chat
-st.title("🏗️ Assistente de Excel da COESO CURSOS")
-st.caption("Obtenha fórmulas prontas e explicações para usar em suas planilhas")
+st.title("📊 Assistente de Excel da COESO CURSOS")
+st.caption("Obtenha fórmulas prontas e explicações profissionais para suas planilhas")
 
 # Verificação da API Key
 openai_key = os.getenv("OPENAI_API_KEY")
@@ -211,24 +199,10 @@ client = OpenAI(api_key=openai_key)
 
 def format_response(text):
     """Formata a resposta do assistente"""
+    # Remove caracteres especiais e formatação indesejada
     text = re.sub(r'\{.*?\}', '', text)
     text = re.sub(r'\\[a-z]+', '', text)
-
-    for num, title in titles.items():
-        pattern = rf"(?i)\b{num}\s*{title}\b[:：]?\s*|\b{title}\b[:：]?\s*"
-        text = re.sub(pattern, '', text)
-
-    sections = re.split(r'(\d+\.)', text)
-    formatted_text = ""
-
-    for i in range(1, len(sections), 2):
-        section_num = sections[i].replace('.', '')
-        section_content = sections[i + 1].strip()
-
-        if section_num in titles:
-            formatted_text += f"**{section_num}. {titles[section_num]}**\n\n{section_content}\n\n"
-
-    return formatted_text.strip()
+    return text
 
 def limit_history(messages, max=10):
     """Limita o histórico de mensagens"""
@@ -241,12 +215,11 @@ for msg in st.session_state.messages:
             st.markdown(msg["content"], unsafe_allow_html=True)
 
 # Processa a entrada do usuário
-if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civil..."):
+if prompt := st.chat_input("Digite sua dúvida sobre Excel..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     
-    # Rastreia o envio de mensagem (versão corrigida)
-    safe_prompt = prompt.replace('"', "'").replace('\n', ' ')[:100]  # Prepara o texto para JS
+    safe_prompt = prompt.replace('"', "'").replace('\n', ' ')[:100]
     st.markdown(f"""
     <script>
     if (typeof fbq !== 'undefined') {{
@@ -271,7 +244,6 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
                 content = response.choices[0].message.content
                 formatted = format_response(content)
                 
-                # Exibe com efeito de digitação
                 msg_box = st.empty()
                 full_resp = ""
                 for para in formatted.split('\n\n'):
@@ -281,7 +253,6 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel para construção civ
                         time.sleep(0.15)
                 msg_box.markdown(full_resp, unsafe_allow_html=True)
             
-            # Rastreia resposta recebida
             st.markdown("""
             <script>
             if (typeof fbq !== 'undefined') {
