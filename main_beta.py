@@ -199,11 +199,13 @@ st.title("🏗️ Assistente de Excel para Construção Civil")
 st.caption("Obtenha fórmulas prontas para usar em suas planilhas de obra")
 
 # Verificação da API Key
-if 'openai' not in st.secrets:
-    st.error("API Key não configurada. Verifique o arquivo secrets.toml")
+openai_key = os.getenv("OPENAI_API_KEY")
+
+if not openai_key:
+    st.error("API Key não configurada. Defina a variável de ambiente OPENAI_API_KEY no Render.")
     st.stop()
 
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+client = OpenAI(api_key=openai_key)
 
 # Dicionário para formatação das respostas
 titles = {
