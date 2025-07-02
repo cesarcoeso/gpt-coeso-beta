@@ -1,4 +1,4 @@
-# main.py - Assistente de Excel para Construção Civil
+# main.py - Assistente de Excel da COESO
 import streamlit as st
 from openai import OpenAI
 import time
@@ -139,26 +139,28 @@ with st.sidebar:
         """,
         unsafe_allow_html=True
     )
-    
-    # Instruções de uso
+        # Instruções de uso
     st.markdown("""
-    ### ℹ️ Como usar:
-    - Pergunte sobre fórmulas, cálculos e planilhas
+    ### ℹ️ Como usar este assistente de Excel:
+    - Pergunte sobre fórmulas, funções e técnicas avançadas de Excel
     - Exemplos:
-      - <span class="sidebar-example">Como calcular área de laje?</span>
-      - <span class="sidebar-example">Fórmula para previsão de materiais</span>
-      - <span class="sidebar-example">Como usar PROCV em orçamentos?</span>
-    
-    🛠️ **Dicas técnicas:**
-    - Todas as fórmulas em português
-    - Exemplos práticos incluídos
+      - <span class="sidebar-example">Como usar PROCV para buscar dados?</span>
+      - <span class="sidebar-example">Diferença entre SOMASE e SOMASES</span>
+      - <span class="sidebar-example">Como criar gráficos dinâmicos?</span>
+      - <span class="sidebar-example">Fórmula para extrair texto antes do @ em emails</span>
 
-    📌 **Como usar as fórmulas:**
-    - As fórmulas do item **3** da resposta podem ser copiadas direto para o Excel
-    - Cole na célula **B4**
-    - Preencha os dados em **B2** (diâmetro em metros) e **C2** (altura em metros)
+    🛠️ **Dicas técnicas:**
+    - Todas as fórmulas em português (funções localizadas)
+    - Exemplos prontos para copiar e colar
+    - Fórmulas formatadas entre ``` ``` para fácil identificação
+
+    📌 **Boas práticas:**
+    - Verifique sempre as referências de células nas fórmulas
+    - Use F9 para depurar partes de fórmulas complexas
+    - Prefira funções modernas como XPROC em vez de PROCV
     """, unsafe_allow_html=True)
-    
+
+
     # Botão de limpar conversa
     st.markdown("""
     <style>
@@ -195,8 +197,8 @@ with st.sidebar:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Área principal do chat
-st.title("🏗️ Assistente de Excel para Construção Civil")
-st.caption("Obtenha fórmulas prontas para usar em suas planilhas de obra")
+st.title("🏗️ Assistente de Excel da COESO CURSOS")
+st.caption("Obtenha fórmulas prontas e explicações para usar em suas planilhas")
 
 # Verificação da API Key
 openai_key = os.getenv("OPENAI_API_KEY")
@@ -206,14 +208,6 @@ if not openai_key:
     st.stop()
 
 client = OpenAI(api_key=openai_key)
-
-# Dicionário para formatação das respostas
-titles = {
-    '1': 'Explicação técnica breve',
-    '2': 'Fórmula matemática clara',
-    '3': 'Fórmula Excel aplicável',
-    '4': 'Exemplo numérico completo'
-}
 
 def format_response(text):
     """Formata a resposta do assistente"""
