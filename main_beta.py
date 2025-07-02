@@ -143,11 +143,11 @@ with st.sidebar:
     🛠️ **Dicas técnicas:**
     - Todas as fórmulas em português (funções localizadas)
     - Exemplos prontos para copiar e colar
-    - Fórmulas formatadas entre ``` ``` para fácil identificação
+    - Fórmulas formatadas para fácil identificação e para copiar e colar no Excel
 
     📌 **Boas práticas:**
     - Verifique sempre as referências de células nas fórmulas
-    - Use F9 para depurar partes de fórmulas complexas
+    - Use F2 para mostrar as células da fórmula ativa
     - Prefira funções modernas como XPROC em vez de PROCV
     """, unsafe_allow_html=True)
 
