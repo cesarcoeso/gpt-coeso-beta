@@ -9,45 +9,6 @@ import os
 # Configuração para evitar problemas com protobuf
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
-# === META PIXEL ===
-META_PIXEL_ID = "1191282802604696"  # Seu Pixel ID
-
-meta_pixel_code = f"""
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{{if(f.fbq)return;n=f.fbq=function(){{n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)}};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '{META_PIXEL_ID}');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id={META_PIXEL_ID}&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-
-<!-- Evento de Início de Conversa -->
-<script>
-function trackChatStart() {{
-    fbq('track', 'InitiateChat');
-}}
-</script>
-"""
-
-st.markdown(meta_pixel_code, unsafe_allow_html=True)
-
-# === VERIFICAÇÃO NO CONSOLE ===
-st.markdown(f"""
-<script>
-console.log('Meta Pixel carregado, ID: {META_PIXEL_ID}');
-</script>
-""", unsafe_allow_html=True)
-
 # === CONFIGURAÇÃO DA PÁGINA ===
 st.set_page_config(
     page_title="Assistente de Excel - Coeso Cursos",
@@ -80,42 +41,11 @@ st.markdown("""
         }
     }
 </style>
-
-<script>
-window.addEventListener('load', function() {
-    if (typeof fbq !== 'undefined') {
-        fbq('track', 'ViewContent');
-        console.log('Evento ViewContent disparado');
-    }
-});
-</script>
-""", unsafe_allow_html=True)
-
-# === RASTREAMENTO DE CÓPIA DE FÓRMULAS ===
-st.markdown("""
-<script>
-document.addEventListener('copy', function(e) {
-    const selection = window.getSelection().toString();
-    if (selection && typeof fbq !== 'undefined') {
-        if (selection.includes('=') || selection.includes('SE(') || selection.includes('PROCV')) {
-            fbq('track', 'CopyFormula', {content: selection.substring(0, 100)});
-            console.log('Fórmula copiada:', selection.substring(0, 100) + '...');
-        }
-    }
-});
-</script>
 """, unsafe_allow_html=True)
 
 # === INTERFACE PRINCIPAL ===
 if 'messages' not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    st.markdown("""
-    <script>
-    if (typeof fbq !== 'undefined') {
-        fbq('track', 'StartChat');
-    }
-    </script>
-    """, unsafe_allow_html=True)
 
 # Barra lateral com instruções
 with st.sidebar:
@@ -173,13 +103,6 @@ with st.sidebar:
     
     if st.button("🪟 Limpar Conversa"):
         st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-        st.markdown("""
-        <script>
-        if (typeof fbq !== 'undefined') {
-            fbq('track', 'ResetChat');
-        }
-        </script>
-        """, unsafe_allow_html=True)
         st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
@@ -189,7 +112,7 @@ st.title("📊 Assistente de Excel da COESO CURSOS")
 st.caption("Obtenha fórmulas prontas e explicações profissionais para suas planilhas")
 
 # Verificação da API Key
-openai_key = os.getenv("OPENAI_API_KEY")
+openai_key = st.secrets["openai"]["api_key"]
 
 if not openai_key:
     st.error("API Key não configurada. Defina a variável de ambiente OPENAI_API_KEY no Render.")
@@ -199,7 +122,6 @@ client = OpenAI(api_key=openai_key)
 
 def format_response(text):
     """Formata a resposta do assistente"""
-    # Remove caracteres especiais e formatação indesejada
     text = re.sub(r'\{.*?\}', '', text)
     text = re.sub(r'\\[a-z]+', '', text)
     return text
@@ -218,16 +140,6 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Digite sua dúvida sobre Excel..."):
     with st.chat_message("user"):
         st.markdown(prompt)
-    
-    safe_prompt = prompt.replace('"', "'").replace('\n', ' ')[:100]
-    st.markdown(f"""
-    <script>
-    if (typeof fbq !== 'undefined') {{
-        fbq('track', 'SendMessage', {{content: "{safe_prompt}"}});
-        console.log('Mensagem enviada:', "{safe_prompt}");
-    }}
-    </script>
-    """, unsafe_allow_html=True)
     
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.session_state.messages = limit_history(st.session_state.messages)
@@ -252,16 +164,7 @@ if prompt := st.chat_input("Digite sua dúvida sobre Excel..."):
                         msg_box.markdown(full_resp + "▌", unsafe_allow_html=True)
                         time.sleep(0.15)
                 msg_box.markdown(full_resp, unsafe_allow_html=True)
-            
-            st.markdown("""
-            <script>
-            if (typeof fbq !== 'undefined') {
-                fbq('track', 'ReceiveResponse');
-                console.log('Resposta recebida');
-            }
-            </script>
-            """, unsafe_allow_html=True)
-            
+
             st.session_state.messages.append({"role": "assistant", "content": formatted})
         except Exception as e:
             err = "⚠️ Ocorreu um erro ao processar sua pergunta. Por favor, tente novamente."
