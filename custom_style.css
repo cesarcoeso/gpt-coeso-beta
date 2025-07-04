@@ -63,6 +63,6 @@ section[data-testid="stSidebar"] button:hover {
 }
 
 /* Reduzir tamanho da fonte da sidebar em 75% */
-[data-testid="stSidebar"] {
-    font-size: 50% !important;
+[data-testid="stSidebar"] * {
+    font-size: 90% !important;
 }
