@@ -108,7 +108,7 @@ with st.sidebar:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Área principal do chat
-st.title("📊 Assistente de Excel da COESO CURSOS")
+st.header("📊 Assistente de Excel da COESO CURSOS")
 st.caption("Obtenha fórmulas prontas e explicações profissionais para suas planilhas")
 
 # Verificação da API Key
