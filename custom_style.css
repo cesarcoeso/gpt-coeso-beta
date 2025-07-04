@@ -61,3 +61,8 @@ section[data-testid="stSidebar"] button {
 section[data-testid="stSidebar"] button:hover {
     background-color: #d11c4a !important;
 }
+
+/* Reduzir tamanho da fonte da sidebar em 75% */
+[data-testid="stSidebar"] * {
+    font-size: 75% !important;
+}
